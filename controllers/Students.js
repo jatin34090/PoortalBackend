@@ -23,7 +23,7 @@ const getStudents = async (req, res) => {
 
 const getStudentsById = async (req, res) => {
   try {
-    const student = await Students.findOne({_id: req.user.id}).select("-password");
+    const student = await Students.findOne({_id: req.user.id}).select("-password -__v -created_at -updated_at -_id -StudentsId"); 
     console.log("student", student);
     if (student.length === 0) {
       res.status(400).json({ message: "No students found" });
@@ -69,12 +69,13 @@ const addStudents = async (req, res) => {
 
 // Function to edit an existing student
 const editStudent = async(req, res) => {
-  const {student_id} = req.params;
+  const student_id = req.params.student_id || req.user.id;
+
   const {name, email, role, password} = req.body;
   const student = await Students.findById(student_id);
 
   if(!student){
-      return res.status(400).send("Employee not found");
+      return res.status(400).send("Student not found");
   }
 
   student.name = name? name : student.name;
@@ -82,9 +83,9 @@ const editStudent = async(req, res) => {
   student.role = role? role : student.role;
   student.password = password? password : student.password;
 
-  const updatedEmployee = await employee.save();
+  const updateStudent = await student.save();
 
-  res.send(updatedEmployee);
+  res.send(updateStudent);
 }
 
 // Function to delete a student
@@ -101,6 +102,8 @@ const editStudent = async(req, res) => {
 //     res.status(500).json("Error deleting student: " + error.message);
 //   }
 // };
+
+
 
 
 const deleteStudent = async (req, res) => {

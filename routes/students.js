@@ -19,6 +19,7 @@ router.post("/addStudent", verifyToken("hr","Student"), checkRole(["hr"]), addSt
 
 router.get('/getStudentsById', verifyToken("Student"), checkRole(["Student"]), getStudentsById);
 
+router.patch("/editStudent", verifyToken(["Student"]), checkRole(["Student"]), editStudent);
 router.patch("/editStudent/:student_id", verifyToken(["hr", "Student"]), checkRole(["hr"]), editStudent);
 router.delete("/deleteStudent/:student_id", verifyToken("hr"), checkRole(["hr"]), deleteStudent);
 
