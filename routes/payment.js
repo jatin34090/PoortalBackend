@@ -7,7 +7,7 @@ const {
 const express = require("express");
 const router = express.Router();
 
-router.route("/checkout").post(checkout);
+router.post("/checkout", checkout);
 
 router.route("/paymentverification").post(paymentVerification);
 router.route("/getKey").get(getKey);

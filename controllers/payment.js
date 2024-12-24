@@ -3,6 +3,7 @@ const crypto = require("crypto");
 
 
  const checkout = async (req, res) => {
+    console.log("checkout");
     try {
 
         const options = {
