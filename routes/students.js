@@ -6,6 +6,7 @@ const {
   editStudent,
   deleteStudent,
   getStudentsById,
+  getAdmitCard
 } = require("../controllers/Students");
 
 const accountSid = process.env.accountSid;
@@ -22,9 +23,11 @@ router.get('/getStudentsById', verifyToken("Student"), checkRole(["Student"]), g
 router.patch("/editStudent", verifyToken(["Student"]), checkRole(["Student"]), editStudent);
 router.patch("/editStudent/:student_id", verifyToken(["hr", "Student"]), checkRole(["hr"]), editStudent);
 router.delete("/deleteStudent/:student_id", verifyToken("hr"), checkRole(["hr"]), deleteStudent);
+router.get("/getAdmitCard", verifyToken("Student"), checkRole(["Student"]), getAdmitCard);
 
 router.post("/sendVerification", async (req, res) => {
   const { phone } = req.body;
+  console.log("phone  ", phone);
 
   try {
     const verification = await client.verify.v2
@@ -34,7 +37,7 @@ router.post("/sendVerification", async (req, res) => {
     res.status(200).send(`Code sent to ${phone}, Status: ${verification.status}`);
   } catch (error) {
     console.error("Error starting verification:", error.message);
-    res.status(500).send(error.message);
+    res.status(500).send({error:error.message});
   }
 });
 router.post("/verifyNumber", async (req, res) => {
@@ -52,7 +55,7 @@ router.post("/verifyNumber", async (req, res) => {
       }
     } catch (error) {
       console.error("Error verifying code:", error.message);
-      res.status(500).send(error.message);
+      res.status(500).send({error: error.message});
     }
   });
   

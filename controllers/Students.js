@@ -23,7 +23,7 @@ const getStudents = async (req, res) => {
 
 const getStudentsById = async (req, res) => {
   try {
-    const student = await Students.findOne({_id: req.user.id}).select("-password -__v -created_at -updated_at -_id -StudentsId -resetToken -resetTokenExpiry"); 
+    const student = await Students.findOne({ _id: req.user.id }).select("-password -__v -created_at -updated_at -_id -StudentsId -resetToken -resetTokenExpiry");
     console.log("student", student);
     if (student.length === 0) {
       res.status(400).json({ message: "No students found" });
@@ -46,8 +46,8 @@ const addStudents = async (req, res) => {
     formNo,
     password,
   } = req.body;
-  
-  const existingStudent = await Students.findOne({ email});
+
+  const existingStudent = await Students.findOne({ email });
   if (existingStudent) {
     return res.status(400).json("Student already exists");
   }
@@ -61,27 +61,27 @@ const addStudents = async (req, res) => {
       password
     });
     const result = await newStudent.save();
-    return res.status(200).json({student: {name, email, role, formNo}});
+    return res.status(200).json({ student: { name, email, role, formNo } });
   } catch (error) {
     res.status(500).json("Error adding student: " + error);
   }
 };
 
 // Function to edit an existing student
-const editStudent = async(req, res) => {
+const editStudent = async (req, res) => {
   const student_id = req.params.student_id || req.user.id;
 
-  const {name, email, role, password} = req.body;
+  const { name, email, role, password } = req.body;
   const student = await Students.findById(student_id);
 
-  if(!student){
-      return res.status(400).send("Student not found");
+  if (!student) {
+    return res.status(400).send("Student not found");
   }
 
-  student.name = name? name : student.name;
-  student.email = email? email : student.email;
-  student.role = role? role : student.role;
-  student.password = password? password : student.password;
+  student.name = name ? name : student.name;
+  student.email = email ? email : student.email;
+  student.role = role ? role : student.role;
+  student.password = password ? password : student.password;
 
   const updateStudent = await student.save();
 
@@ -138,6 +138,21 @@ const deleteStudent = async (req, res) => {
   }
 };
 
+const getAdmitCard = async (req, res) => {
+  try {
+    const { student_id } = req.user;
+    const studentAdmitCard = await Students.findOne({ _id: student_id }).select("admitCard");
+    console.log("studentAdmitCard", studentAdmitCard);
+    if (!studentAdmitCard) {
+      res.status(404).json("Student not found")
+    }
+    res.status(200).json(studentAdmitCard);
+  } catch (error) {
+    console.log("error", error)
+    res.status(500).json("Error getting admit card: " + error.message);
+  }
+}
+
 
 module.exports = {
   getStudents,
@@ -145,4 +160,5 @@ module.exports = {
   addStudents,
   editStudent,
   deleteStudent,
+  getAdmitCard
 };

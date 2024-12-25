@@ -10,9 +10,9 @@ const basicDetailsSchema = new mongoose.Schema({
   gender: { type: String, enum: ["Male", "Female", "Other"], required: true },
   examName: { type: String, required: true },
   examDate: { type: Date, required: true },
-  admitCard: {
-    type: String,
-  },
+  // admitCard: {
+  //   type: String,
+  // },
   created_at: { type: Date, default: Date.now },
 });
 
