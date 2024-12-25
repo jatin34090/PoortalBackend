@@ -27,6 +27,9 @@ const studentsSchema = new mongoose.Schema({
   admitCard: {
     typr: String,
   },
+  result:{
+    type: String
+  },
   password: {
     type: String,
     required: true,

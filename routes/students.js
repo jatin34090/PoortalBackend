@@ -6,7 +6,8 @@ const {
   editStudent,
   deleteStudent,
   getStudentsById,
-  getAdmitCard
+  getAdmitCard,
+  resultDetails
 } = require("../controllers/Students");
 
 const accountSid = process.env.accountSid;
@@ -24,6 +25,7 @@ router.patch("/editStudent", verifyToken(["Student"]), checkRole(["Student"]), e
 router.patch("/editStudent/:student_id", verifyToken(["hr", "Student"]), checkRole(["hr"]), editStudent);
 router.delete("/deleteStudent/:student_id", verifyToken("hr"), checkRole(["hr"]), deleteStudent);
 router.get("/getAdmitCard", verifyToken("Student"), checkRole(["Student"]), getAdmitCard);
+router.get("/getResultDetails", verifyToken("Student"), checkRole("Student"), resultDetails);
 
 router.post("/sendVerification", async (req, res) => {
   const { phone } = req.body;

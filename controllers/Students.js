@@ -6,6 +6,7 @@ const BatchRelatedDetails = require("../models/form/BatchRelatedDetails");
 const EducationalDetails = require("../models/form/EducationalDetails");
 const Payment = require("../models/form/Payment");
 const FamilyDetails = require("../models/form/FamilyDetails");
+const { reservationsUrl } = require("twilio/lib/jwt/taskrouter/util");
 
 
 // Function to get all students
@@ -103,6 +104,25 @@ const editStudent = async (req, res) => {
 //   }
 // };
 
+const resultDetails = async (req, res) =>{
+  try{
+
+    const {student_id} = req.user;
+    const student = Students.findById(student_id).select("result");
+    if(!student){
+      res.status(404).json("Student not found");
+  
+    }
+    console.log("student", student);
+    res.status(200).json(student);
+  }catch(error){
+    console.log("error", error);
+      res.status(500).json("Error getting result details: " + error.message)
+    
+  }
+  
+}
+
 
 
 
@@ -160,5 +180,6 @@ module.exports = {
   addStudents,
   editStudent,
   deleteStudent,
-  getAdmitCard
+  getAdmitCard,
+  resultDetails
 };
