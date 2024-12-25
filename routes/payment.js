@@ -9,9 +9,9 @@ const router = express.Router();
 
 router.post("/checkout", checkout);
 
-router.route("/paymentverification").post(paymentVerification);
+router.post("/paymentverification", paymentVerification);
 router.route("/getKey").get(getKey);
-
+ 
 
 
 module.exports = router;

@@ -23,7 +23,7 @@ const getStudents = async (req, res) => {
 
 const getStudentsById = async (req, res) => {
   try {
-    const student = await Students.findOne({_id: req.user.id}).select("-password -__v -created_at -updated_at -_id -StudentsId"); 
+    const student = await Students.findOne({_id: req.user.id}).select("-password -__v -created_at -updated_at -_id -StudentsId -resetToken -resetTokenExpiry"); 
     console.log("student", student);
     if (student.length === 0) {
       res.status(400).json({ message: "No students found" });

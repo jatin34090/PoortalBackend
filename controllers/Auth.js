@@ -184,8 +184,8 @@ const requestPasswordReset = async (req, res) => {
     user.resetToken = resetToken;
     user.resetTokenExpiry = resetTokenExpiry;
     await user.save();
-
-    const resetLink = `http://localhost:3000/reset-password/${resetToken}`;
+    const frontendUrl = process.env.FRONTNED_URL || "http://localhost:5073";
+    const resetLink = `${frontendUrl}/reset-password/${resetToken}`;
     const mailOptions = {
       from: process.env.GMAIL_USER,
       to: user.email,
@@ -220,7 +220,10 @@ const resetPassword = async (req, res) => {
     if (!user) {
       return res.status(400).json({ message: "Invalid or expired token" });
     }
-    user.password = await bcrypt.hash(newPassword, 10); // Hash this in production
+    const salt = await bcrypt.genSalt(10);
+    console.log("newPassword", newPassword);
+    const hashedPassword = await bcrypt.hash(newPassword, salt);
+    user.password =  hashedPassword; // Hash this in production
     user.resetToken = null;
     user.resetTokenExpiry = null;
     await user.save();

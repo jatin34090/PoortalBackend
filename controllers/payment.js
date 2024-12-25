@@ -2,7 +2,7 @@ const instance = require("../utils/razorpay");
 const crypto = require("crypto");
 
 
- const checkout = async (req, res) => {
+const checkout = async (req, res) => {
     console.log("checkout");
     try {
 
@@ -25,7 +25,7 @@ const crypto = require("crypto");
     }
 }
 
- const paymentVerification = async (req, res) => {
+const paymentVerification = async (req, res) => {
     try {
 
         const { razorpay_payment_id, razorpay_order_id, razorpay_signature } =
@@ -39,10 +39,10 @@ const crypto = require("crypto");
             .digest("hex");
 
         if (razorpay_signature === expectedSign) {
-// save in database
+            // save in database
 
 
-res.redirect(`http://localhost:3000/success?reference=${razorpay_payment_id}`);
+            res.redirect(`http://localhost:5173/success?reference=${razorpay_payment_id}`);
 
             return res.status(200).json({
                 success: true,
@@ -53,14 +53,14 @@ res.redirect(`http://localhost:3000/success?reference=${razorpay_payment_id}`);
             });
         }
 
-       
+
 
     } catch (error) {
         console.log(error);
     }
 }
 
- const getKey = async (req, res) => {
+const getKey = async (req, res) => {
     try {
         res.status(200).json({
             key: process.env.RAZORPAY_KEY,
