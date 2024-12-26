@@ -8,7 +8,7 @@ const familyDetailsSchema = new mongoose.Schema({
     MotherName: { type: String, required: true },
     MotherContactNumber: { type: String, required: true },
     MotherOccupation: { type: String, required: true },
-    FamilyIncome: { type: Number, required: true },
+    FamilyIncome: { type: String, required: true },
 
 });
 
