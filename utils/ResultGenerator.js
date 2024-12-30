@@ -842,90 +842,61 @@ const uploadToCloudinary = async (filePath, rollNumber) => {
     throw error;
   }
 };
-
-// Function to process CSV data and generate admit cards
 const processCSVAndGenerateResulrCards = async (csvFilePath) => {
-  const students = [];
-  const allUrls = {};
+    const students = [];
+    const allUrls = {};
 
-  // console.log("Processing CSV file...", csvFilePath);
-  // 
-  // Read CSV file and parse data
-   fs.createReadStream(csvFilePath)
-    .pipe(csv())
-    .on("data", (row) => {
-      students.push(row);
-    })
-    .on("end", async () => {
-      console.log("CSV file successfully processed.");
-      console.log("Number of students:", students.length);
+    return new Promise((resolve, reject) => {
+        // Start reading the CSV file
+        fs.createReadStream(csvFilePath)
+            .pipe(csv())
+            .on("data", (row) => {
+              console.log("Row:", row);
+                students.push(row); 
+            })
+            .on("end", async () => {
+                console.log("CSV file successfully processed.");
+                console.log("Number of students:", students.length);
 
-      for (const student of students) {
-        const pdfFilePath = `./admit_card_${student.Registration}.pdf`;
+                for (const student of students) {
+                    const pdfFilePath = `./admit_card_${student.Registration}.pdf`;
 
+                    try {
+                        console.log("Student data:", student);
 
-        // Prepare student data for admit card
-        // const studentData = {
-        //     studentName: "JAtin",
-        //     dob: "2001-05-23",
-        //     classLevel: "XI",
-        //     photo: student.Photo || "https://via.placeholder.com/100", // Placeholder if no photo
-        //     stream: "Medical",
-        //     gender: "Male",
-        // };
+                        // Generate the admit card PDF for the student
+                        await generateReportCardPDF(student, pdfFilePath);
 
-        try {
-          // const data = {
-          //   studentName: "John Doe",
-          //   registrationNo: "12345",
-          //   fathersName: "Richard Doe",
-          //   mothersName: "Jane Doe",
-          //   class: "10th Grade",
-          //   scholarship: "Merit-Based",
-          //   rank: 5,
-          //   percentage: 89.5,
-          //   subjects: [
-          //     { name: "Mathematics", obtained: 90, fullMarks: 100 },
-          //     { name: "Science", obtained: 88, fullMarks: 100 },
-          //     { name: "English", obtained: 85, fullMarks: 100 },
-          //     { name: "Social Studies", obtained: 86, fullMarks: 100 },
-          //     { name: "Hindi", obtained: 88, fullMarks: 100 },
-          //   ],
-          //   totalObtained: 437, // Sum of all obtained marks
-          //   totalMarks: 500, // Sum of all full marks
-          // };
+                        console.log(`Generated admit card for Roll Number: ${student.Registration}`);
 
-          console.log("Student data", student)
+                        // Validate the generated PDF file before uploading
+                        if (isFileValid(pdfFilePath)) {
+                            // Upload the generated admit card to Cloudinary
+                            const url = await uploadToCloudinary(pdfFilePath, student.Registration);
+                            allUrls[student.Registration] = url;
 
+                            console.log(`Admit card URL for ${student.Registration}: ${url}`);
+                        } else {
+                            console.log(`Generated PDF for ${student.Registration} is empty or invalid.`);
+                        }
 
-          generateReportCardPDF(student, pdfFilePath);
+                        // Optionally, delete the local PDF after uploading to Cloudinary
+                        fs.unlinkSync(pdfFilePath);
+                    } catch (error) {
+                        console.error(`Error processing admit card for Roll Number ${student.Registration}:`, error);
+                    }
+                }
 
-          console.log(`Generated admit card for Roll Number: ${student.registrationNo}`);
-
-          // Ensure that the file is valid before uploading
-          if (isFileValid(pdfFilePath)) {
-            // Upload the admit card to Cloudinary
-            const url = await uploadToCloudinary(pdfFilePath, student.registrationNo);
-            allUrls[student.registrationNo] = url;
-
-            console.log(`Admit card URL for ${data.registrationNo}: ${url}`);
-          } else {
-            console.log(`Generated PDF for ${data.registrationNo} is empty or invalid.`);
-          }
-
-          // Optionally, delete the local file after upload
-          fs.unlinkSync(pdfFilePath);
-        } catch (error) {
-          console.error(`Error processing admit card for Roll Number: `, error);
-        }
-      }
-    })
-    .on("error", (error) => {
-      console.error("Error reading CSV file:", error);
+                // Resolve the promise with the URLs once all students are processed
+                resolve(allUrls);
+            })
+            .on("error", (error) => {
+                console.error("Error reading CSV file:", error);
+                reject(error); // Reject the promise on file reading error
+            });
     });
-
-    return allUrls;
 };
+
 
 // Run the script
 // const csvFilePath = "./students.csv"; // Path to your CSV file

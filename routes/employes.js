@@ -119,8 +119,8 @@ router.post("/generateResult", verifyToken("hr"), checkRole(["hr"]), upload.sing
         const fileBuffer = file.buffer;  // The file content as a Buffer
         const fileName = file.originalname;  // The file name
 
-        console.log("File name:", fileName);  // Debug the file name
-        console.log("File buffer length:", fileBuffer.length);  // Debug file buffer length
+        // console.log("File name:", fileName);  // Debug the file name
+        // console.log("File buffer length:", fileBuffer.length);  // Debug file buffer length
 
         // Process the CSV file from the buffer
       await processCSVAndGenerateResulrCards(fileBuffer, fileName);  // Pass buffer to your processing function
