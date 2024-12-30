@@ -7,7 +7,8 @@ const {
   deleteStudent,
   getStudentsById,
   getAdmitCard,
-  resultDetails
+  resultDetails,
+  uploadStudentResult
 } = require("../controllers/Students");
 
 const accountSid = process.env.accountSid;
@@ -24,7 +25,11 @@ router.get('/getStudentsById', verifyToken("Student"), checkRole(["Student"]), g
 router.patch("/editStudent", verifyToken(["Student"]), checkRole(["Student"]), editStudent);
 router.patch("/editStudent/:student_id", verifyToken(["hr", "Student"]), checkRole(["hr"]), editStudent);
 router.delete("/deleteStudent/:student_id", verifyToken("hr"), checkRole(["hr"]), deleteStudent);
+
+
 router.get("/getAdmitCard", verifyToken("Student"), checkRole(["Student"]), getAdmitCard);
+
+
 router.get("/getResultDetails", verifyToken("Student"), checkRole("Student"), resultDetails);
 
 router.post("/sendVerification", async (req, res) => {
@@ -61,5 +66,8 @@ router.post("/verifyNumber", async (req, res) => {
     }
   });
   
+
+
+router.post("/uploadStudentResult", verifyToken("Hr"), checkRole(["Hr"]), uploadStudentResult);
 
 module.exports = router;

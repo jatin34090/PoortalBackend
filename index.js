@@ -15,6 +15,7 @@ mongoose.connect(process.env.MONGODB_URL).then(() => {
 app.use("/api/auth", require("./routes/auth"));
 
 app.use("/api/students", require("./routes/students"));
+// app.use("/api/admitCard", require("./routes/AdmitCardGenerator"));
 
 app.use("/api/form", require("./routes/form"));
 

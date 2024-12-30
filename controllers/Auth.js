@@ -184,7 +184,7 @@ const requestPasswordReset = async (req, res) => {
     user.resetToken = resetToken;
     user.resetTokenExpiry = resetTokenExpiry;
     await user.save();
-    const frontendUrl = process.env.FRONTEND_URL || "http://localhost:5073";
+    const frontendUrl = process.env.FRONTEND_URL || "http://localhost:5173";
     const resetLink = `${frontendUrl}/reset-password/${resetToken}`;
     const mailOptions = {
       from: process.env.GMAIL_USER,

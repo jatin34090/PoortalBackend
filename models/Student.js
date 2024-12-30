@@ -1,46 +1,40 @@
-const { v4: uuidv4 } = require('uuid'); // Import UUID generator
-const mongoose = require("mongoose");
+const mongoose = require('mongoose');
 
+// Define Students Schema
 const studentsSchema = new mongoose.Schema({
-  name: {
-    type: String,
-    required: true,
-  },
-  StudentsId: {
-    type: String,
-    default: uuidv4, // Automatically assign a unique UUID
-    unique: true,
-  },
-  email: {
-    type: String,
-    required: true,
-    unique: true,
-  },
-  role: {
-    type: String,
-    required: true,
-  },
-  phone:{
-    type: String,
-    required: true
-  },
-  admitCard: {
-    typr: String,
-  },
-  result:{
-    type: String
-  },
-  password: {
-    type: String,
-    required: true,
-  },
-  resetToken:{
-    type: String
-  },
-resetTokenExpiry:{
-  type: String
-}
+  name: { type: String, required: true },
+  StudentsId: { type: String }, // Unique constraint for StudentsId
+  email: { type: String, required: true, unique: true },
+  admitCard: { type: String },
+  result: { type: String },
+  role: { type: String, required: true },
+  phone: { type: String, required: true },
+  password: { type: String, required: true },
+  resetToken: { type: String },
+  resetTokenExpiry: { type: String },
 });
 
-const Students = mongoose.model("Students", studentsSchema);
+// Static Method to Allocate StudentsId
+studentsSchema.statics.allocateStudentsId = async function (classForAdmission) {
+  const currentYear = new Date().getFullYear();
+
+  // Count how many students are in the given class using BatchRelatedDetails
+  const BatchRelatedDetails = mongoose.model('BatchRelatedDetails');
+  const classStudentCount = await BatchRelatedDetails.countDocuments({ classForAdmission });
+
+  // Increment the count for the new student
+  const studentNumber = String(classStudentCount + 1).padStart(3, '0'); // 3-digit padding
+
+  // Return the formatted StudentsId
+  return `${currentYear}${classForAdmission}${studentNumber}`;
+};
+
+// Ensure the unique index for StudentsId
+// studentsSchema.index({ StudentsId: 1 });
+// studentsSchema.drop('StudentsId_1');
+studentsSchema.index({ StudentsId: 1 }, { unique: true, partialFilterExpression: { StudentsId: { $ne: null } } });
+
+
+// Create and Export the Students Model
+const Students = mongoose.model('Students', studentsSchema);
 module.exports = Students;

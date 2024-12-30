@@ -7,6 +7,24 @@ const EducationalDetails = require("../models/form/EducationalDetails");
 const Payment = require("../models/form/Payment");
 const FamilyDetails = require("../models/form/FamilyDetails");
 const { reservationsUrl } = require("twilio/lib/jwt/taskrouter/util");
+const { uploadOnCloudinary } = require("../utils/cloudinary");
+
+
+
+const uploadStudentResult = async (req, res) => {
+  try {
+    const { result, studentId } = req.body;
+    uploadOnCloudinary(result);
+    const student = await Students.findOne({ _id: req.user.id });
+    student.result = result;
+    await student.save();
+    res.status(200).json({ message: "Result added successfully" });
+  } catch (error) {
+    console.log("error", error);
+  }
+}
+
+
 
 
 // Function to get all students
@@ -104,24 +122,7 @@ const editStudent = async (req, res) => {
 //   }
 // };
 
-const resultDetails = async (req, res) =>{
-  try{
 
-    const {student_id} = req.user;
-    const student = Students.findById(student_id).select("result");
-    if(!student){
-      res.status(404).json("Student not found");
-  
-    }
-    console.log("student", student);
-    res.status(200).json(student);
-  }catch(error){
-    console.log("error", error);
-      res.status(500).json("Error getting result details: " + error.message)
-    
-  }
-  
-}
 
 
 
@@ -160,19 +161,36 @@ const deleteStudent = async (req, res) => {
 
 const getAdmitCard = async (req, res) => {
   try {
-    const { student_id } = req.user;
-    const studentAdmitCard = await Students.findOne({ _id: student_id }).select("admitCard");
-    console.log("studentAdmitCard", studentAdmitCard);
+    const { StudentsId } = req.user;
+    const studentAdmitCard = await Students.findOne({ StudentsId }).select("admitCard");
     if (!studentAdmitCard) {
       res.status(404).json("Student not found")
     }
-    res.status(200).json(studentAdmitCard);
+    console.log("studentAdmitCard", studentAdmitCard);
+    res.status(200).json(studentAdmitCard );
   } catch (error) {
     console.log("error", error)
     res.status(500).json("Error getting admit card: " + error.message);
   }
 }
+const resultDetails = async (req, res) => {
+  try {
+    const { StudentsId } = req.user;
+    const student = await Students.findOne({ StudentsId }).select("result");
 
+    if (!student) {
+      res.status(404).json("Student not found");
+
+    }
+    console.log("student", student);
+    res.status(200).json({ data: student });
+  } catch (error) {
+    console.log("error", error);
+    res.status(500).json("Error getting result details: " + error.message)
+
+  }
+
+}
 
 module.exports = {
   getStudents,
@@ -181,5 +199,6 @@ module.exports = {
   editStudent,
   deleteStudent,
   getAdmitCard,
-  resultDetails
+  resultDetails,
+  uploadStudentResult
 };
