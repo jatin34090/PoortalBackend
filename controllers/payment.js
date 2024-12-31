@@ -6,9 +6,10 @@ const Students = require("../models/Student");
 const BatchRelatedDetails = require("../models/form/BatchRelatedDetails");
 const BasicDetails = require("../models/form/BasicDetails");
 
+require("dotenv").config();
+
 
 const checkout = async (req, res) => {
-    console.log("checkout");
     try {
 
         const options = {
@@ -18,7 +19,7 @@ const checkout = async (req, res) => {
         };
         const order = await instance.orders.create(options);
 
-        console.log(order);
+        console.log("order", order);
 
         res.status(200).json({
             success: true,
@@ -32,17 +33,29 @@ const checkout = async (req, res) => {
 
 const paymentVerification = async (req, res) => {
     try {
+        console.log("req.body of paymentVerification", req);
         const { razorpay_payment_id, razorpay_order_id, razorpay_signature } = req.body;
+
 
         const sign = razorpay_order_id + "|" + razorpay_payment_id;
 
-        // Uncomment if Razorpay signature verification is required
-        // const expectedSign = crypto
-        //     .createHmac("sha256", process.env.RAZORPAY_API_SECRET)
-        //     .update(sign.toString())
-        //     .digest("hex");
 
-        // if (razorpay_signature === expectedSign) {
+        console.log("rezorpay_signature", razorpay_signature);
+        console.log("razorpay_payment_id", razorpay_payment_id);
+        console.log("razorpay_order_id", razorpay_order_id);
+        console.log("sign", sign);
+
+        // Uncomment if Razorpay signature verification is required
+        const expectedSign = crypto
+            .createHmac("sha256", process.env.RAZORPAY_KEY_SECRET)
+            .update(sign.toString())
+            .digest("hex");
+
+
+            console.log("ExpectedSign", expectedSign);
+         
+
+        if (razorpay_signature === expectedSign) {
         const payment = await Payment.create({
             student_id: req.user._id,
             razorpay_order_id,
@@ -111,12 +124,12 @@ const paymentVerification = async (req, res) => {
             success: true,
             message: "Payment verified and admit card generated",
         });
-        // } else {
-        //     return res.status(400).json({
-        //         success: false,
-        //         message: "Invalid signature",
-        //     });
-        // }
+        } else {
+            return res.status(400).json({
+                success: false,
+                message: "Invalid signature",
+            });
+        }
     } catch (error) {
         console.error("Error in payment verification:", error);
         return res.status(500).json({ success: false, message: "Internal Server Error" });
@@ -125,8 +138,9 @@ const paymentVerification = async (req, res) => {
 
 const getKey = async (req, res) => {
     try {
+        console.log("process.env.RAZORPAY_KEY", process.env.RAZORPAY_KEY_ID);
         res.status(200).json({
-            key: process.env.RAZORPAY_KEY,
+            key: process.env.RAZORPAY_KEY_ID,
         });
     } catch (error) {
         console.log(error);

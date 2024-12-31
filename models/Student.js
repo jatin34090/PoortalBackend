@@ -16,8 +16,12 @@ const studentsSchema = new mongoose.Schema({
 
 // Static Method to Allocate StudentsId
 studentsSchema.statics.allocateStudentsId = async function (classForAdmission) {
-  const currentYear = new Date().getFullYear();
+  let currentYear = new Date().getFullYear();
+  const currentmonth = new Date().getMonth();
 
+  if(currentmonth>9 && currentmonth<12){
+    currentYear=currentYear+1
+  }
   // Count how many students are in the given class using BatchRelatedDetails
   const BatchRelatedDetails = mongoose.model('BatchRelatedDetails');
   const classStudentCount = await BatchRelatedDetails.countDocuments({ classForAdmission });

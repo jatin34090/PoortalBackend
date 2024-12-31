@@ -10,8 +10,8 @@ const router = express.Router();
 
 router.post("/checkout", checkout);
 
-router.post("/paymentverification", verifyToken('Student'), checkRole(['Student']), paymentVerification);
-router.route("/getKey").get(getKey);
+router.post("/paymentverification",  paymentVerification);
+router.get("/getKey", getKey);
  
 
 

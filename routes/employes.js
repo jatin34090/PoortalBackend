@@ -1,17 +1,18 @@
 const Employee = require("../models/Employee");
 const { verifyToken, checkRole } = require("../middleware/authentication");
 const multer = require('multer');
-
-
-// Configure multer storage
 const storage = multer.memoryStorage(); // Storing file in memory, you can use diskStorage if needed
-const upload = multer({ storage: storage });
-
-
-
 const express = require("express");
 const processCSVAndGenerateResulrCards = require("../utils/ResultGenerator");
 const router = express.Router();
+const path = require('path');
+
+
+// Initialize express app
+
+
+const cloudinary = require('cloudinary').v2;
+require('dotenv').config();
 
 router.get("/", verifyToken("hr"), checkRole(["hr"]), async (req, res) => {
     const employees = await Employee.find().select("-password");
@@ -82,84 +83,49 @@ router.delete("/delete/:id", async (req, res) => {
     res.send({ name: employee.name, email: employee.email });
 })
 
+// Configure Cloudinary
 
- // In-memory storage to process file buffer
 
-// Define the file validation function
-function isFileValid(file) {
-    const allowedMimes = ['text/csv', 'application/vnd.ms-excel'];
-    if (!allowedMimes.includes(file.mimetype)) {
-        return false;
+// Configure multer for file uploads
+const upload = multer({
+  dest: 'uploads/',
+  fileFilter: (req, file, cb) => {
+    const filetypes = /csv/;
+    const mimetype = filetypes.test(file.mimetype);
+    const extname = filetypes.test(path.extname(file.originalname).toLowerCase());
+    if (mimetype && extname) {
+      return cb(null, true);
     }
-
-    const maxSize = 5 * 1024 * 1024; // 5MB limit
-    if (file.size > maxSize) {
-        return false;
-    }
-
-    return true;
-}
-
-// Your route to handle file upload
-router.post("/generateResult", verifyToken("hr"), checkRole(["hr"]), upload.single('file'), async (req, res) => {
-    try {
-        const { file } = req;  // Access the uploaded file from req.file
-
-        // Ensure the file is provided
-        if (!file) {
-            return res.status(400).send("File not found");
-        }
-
-        // Validate the file
-        if (!isFileValid(file)) {
-            return res.status(400).send("File is empty or invalid");
-        }
-
-        // Here you can access the file buffer and original name
-        const fileBuffer = file.buffer;  // The file content as a Buffer
-        const fileName = file.originalname;  // The file name
-
-        // console.log("File name:", fileName);  // Debug the file name
-        // console.log("File buffer length:", fileBuffer.length);  // Debug file buffer length
-
-        // Process the CSV file from the buffer
-      await processCSVAndGenerateResulrCards(fileBuffer, fileName);  // Pass buffer to your processing function
-        // console.log("Result:", result);
-
-        res.status(200).send("Result generated successfully");
-    } catch (error) {
-        console.error("Error processing file:", error);
-        res.status(500).send("Internal Server Error");
-    }
+    cb(new Error('Only CSV files are allowed!'));
+  },
 });
 
+// Helper function to validate file
+const isFileValid = (file) => {
+  return file && file.mimetype === 'text/csv';
+};
 
-// Your route handler with file handling
+// Helper function to upload file to Cloudinary
+
+// Helper function to generate PDFs
 
 
+// Route: Generate result cards
+router.post('/generateResult', upload.single('file'), async (req, res) => {
+  try {
+    const file = req.file;
 
+    if (!isFileValid(file)) {
+      return res.status(400).json({ error: 'Invalid file format. Only CSV files are allowed.' });
+    }
 
+    processCSVAndGenerateResulrCards(file);
 
-// router.post("/generateResult", verifyToken("hr"), checkRole(["hr"]), async (req, res) => {
-//     try {
+  } catch (error) {
+    console.error('Error:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
 
-//         const { file } = req.body;
-//         console.log("file", req);
-//         console.log("req.body", req.body);
-//         console.log("file", file);
-//         if (!file) {
-//             return res.status(400).send("File not found");
-//         }
-//         if (!isFileValid(file)) {
-//             return res.status(400).send("File is empty");
-//         }
-//         const result = await processCSVAndGenerateResulrCards(file);
-//         console.log("result", result);
-
-//         res.status(200).send(result);
-//     } catch (error) {
-//         res.status(500).send(error);
-//     }
-// })
 
 module.exports = router;
