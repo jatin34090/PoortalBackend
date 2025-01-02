@@ -70,4 +70,6 @@ router.post("/verifyNumber", async (req, res) => {
 
 router.post("/uploadStudentResult", verifyToken("Hr"), checkRole(["Hr"]), uploadStudentResult);
 
+router.post("/")
+
 module.exports = router;

@@ -222,6 +222,7 @@ console.log(formattedDate);
       // Upload the admit card to Cloudinary
       const url = await uploadToCloudinary(pdfFilePath, student.studentId);
       console.log(`Admit card URL for ${student.studentId}: ${url}`);
+      fs.unlinkSync(pdfFilePath);
       return url;
     } else {
       console.log(`Generated PDF for ${student.studentId} is empty or invalid.`);

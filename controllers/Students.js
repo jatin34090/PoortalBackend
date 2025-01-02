@@ -90,7 +90,9 @@ const addStudents = async (req, res) => {
 const editStudent = async (req, res) => {
   const student_id = req.params.student_id || req.user.id;
 
-  const { name, email, role, password } = req.body;
+  console.log("req.body form payment update", req.body);
+
+  const { name, email, role, password, payment_id } = req.body;
   const student = await Students.findById(student_id);
 
   if (!student) {
@@ -101,6 +103,7 @@ const editStudent = async (req, res) => {
   student.email = email ? email : student.email;
   student.role = role ? role : student.role;
   student.password = password ? password : student.password;
+  student.paymentId = payment_id ? payment_id : student.paymentId;
 
   const updateStudent = await student.save();
 

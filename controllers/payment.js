@@ -38,6 +38,7 @@ const paymentVerification = async (req, res) => {
 
 
         const sign = razorpay_order_id + "|" + razorpay_payment_id;
+        console.log("req.body", req.body);
 
 
         console.log("rezorpay_signature", razorpay_signature);
@@ -50,56 +51,54 @@ const paymentVerification = async (req, res) => {
             .createHmac("sha256", process.env.RAZORPAY_KEY_SECRET)
             .update(sign.toString())
             .digest("hex");
-
-
-            console.log("ExpectedSign", expectedSign);
-         
-
+        console.log("ExpectedSign", expectedSign);
         if (razorpay_signature === expectedSign) {
-        const payment = await Payment.create({
-            student_id: req.user._id,
-            razorpay_order_id,
-            razorpay_payment_id,
-            razorpay_signature,
-            payment_status: "Success",
-            payment_method: "Online",
-            amount: 50000,
-            payment_date: new Date(),
-        });
+            const payment = await Payment.create({
+                razorpay_order_id,
+                razorpay_payment_id,
+                razorpay_signature,
+                payment_date: new Date(),
+            });
 
-        console.log("Payment created:", payment);
+            console.log("Payment created:", payment);
+            return res.redirect(`http://localhost:5173/payment/success/${payment._id}`);
 
-        // Fetch the student document
+        } else {
+            return res.status(400).json({
+                success: false,
+                message: "Invalid signature",
+            })
+        }
+    } catch (error) {
+        console.error("Error in payment verification:", error);
+        return res.status(500).json({ success: false, message: "Internal Server Error" });
+    }
+};
+
+
+
+const generateAdmitCard = async (req, res) => {
+    try {
+        console.log("Generate Admit Card");
         const student = await Students.findById(req.user._id);
-
         if (!student) {
             return res.status(404).json({ success: false, message: "Student not found" });
         }
         const basicDetails = await BasicDetails.findOne({ student_id: req.user._id });
         if (!basicDetails) {
             return res.status(404).json({ success: false, message: "Basic Details not found" });
-        }   
-
-        const batchDetails =  await BatchRelatedDetails.findOne({ student_id: req.user._id });
+        }
+        const batchDetails = await BatchRelatedDetails.findOne({ student_id: req.user._id });
         if (!batchDetails) {
             return res.status(404).json({ success: false, message: "Batch Details not found" });
         }
-
-
         console.log("basicDetails", basicDetails);
         console.log("batchDetails", batchDetails);
-        
-
-
         // Allocate a new StudentsId
         const newStudentsId = await Students.allocateStudentsId(batchDetails.classForAdmission);
         console.log("Allocated StudentsId:", newStudentsId);
-
         // Update the student document
         student.StudentsId = newStudentsId;
-
-
-
         const data = {
             name: student.name,
             class: batchDetails.classForAdmission,
@@ -107,29 +106,19 @@ const paymentVerification = async (req, res) => {
             gender: basicDetails.gender,
             stream: batchDetails.subjectCombination,
             studentId: student.StudentsId,
-            
         }
-
         // Generate admit card
         const admitCard = await processHTMLAndGenerateAdmitCards(data);
         console.log("Admit card generated:", admitCard);
-
         student.admitCard = admitCard;
-
         const updatedStudent = await student.save();
         console.log("Updated student:", updatedStudent);
-
         // Send success response
         return res.status(200).json({
             success: true,
-            message: "Payment verified and admit card generated",
+            message: "Admit Card Generated Successfully",
         });
-        } else {
-            return res.status(400).json({
-                success: false,
-                message: "Invalid signature",
-            });
-        }
+
     } catch (error) {
         console.error("Error in payment verification:", error);
         return res.status(500).json({ success: false, message: "Internal Server Error" });
@@ -148,4 +137,16 @@ const getKey = async (req, res) => {
 }
 
 
-module.exports = { checkout, paymentVerification, getKey };
+const getAllPaymentDetails = async (req, res) => {
+    try {
+        const addDetails = await Payment.find({});
+        console.log("addDetails", addDetails);
+        res.status(200).json({ addDetails });
+
+    } catch (error) {
+        res.status(400).json({ "error": error });
+    }
+}
+
+
+module.exports = { checkout, paymentVerification, getKey, getAllPaymentDetails, generateAdmitCard };
