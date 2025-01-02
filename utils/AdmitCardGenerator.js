@@ -134,6 +134,9 @@ const generateAdmitCardPDF = async (data, filePath) => {
                 <br />
                 <label>Gender:</label>
                 <span>${data.gender}</span>
+                <br />
+                <label>Registration No:</label>
+                <span>${data.Registration}</span>
               </div>
             </div>
             <div class="photo-section">

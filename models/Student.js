@@ -26,12 +26,32 @@ studentsSchema.statics.allocateStudentsId = async function (classForAdmission) {
   // Count how many students are in the given class using BatchRelatedDetails
   const BatchRelatedDetails = mongoose.model('BatchRelatedDetails');
   const classStudentCount = await BatchRelatedDetails.countDocuments({ classForAdmission });
-
+ function romanToInt(number) {
+   const romanNumerals = {
+     'I': 1,
+     'II': 2,
+     'III': 3,
+     'IV': 4,
+     'V': 5,
+     'VI': 6,
+     'VII': 7,
+     'VIII': 8,
+     'IX': 9,
+     'X': 10,
+     'XI': 11,
+     'XII': 12,
+   };
+ 
+   return romanNumerals[number];
+ }
+ 
   // Increment the count for the new student
   const studentNumber = String(classStudentCount + 1).padStart(3, '0'); // 3-digit padding
+  const StudentsId =  `${currentYear}${romanToInt(classForAdmission)}${studentNumber}`;
+  console.log("StudentsId", StudentsId);
 
   // Return the formatted StudentsId
-  return `${currentYear}${classForAdmission}${studentNumber}`;
+  return StudentsId;
 };
 
 // Ensure the unique index for StudentsId
