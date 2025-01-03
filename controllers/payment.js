@@ -10,6 +10,7 @@ require("dotenv").config();
 
 
 const checkout = async (req, res) => {
+    console.log("checkout");
     try {
 
         const options = {
@@ -17,6 +18,7 @@ const checkout = async (req, res) => {
             currency: "INR",
             // receipt: "order_rcptid_11"
         };
+        console.log("options", options);
         const order = await instance.orders.create(options);
 
         console.log("order", order);
@@ -27,6 +29,7 @@ const checkout = async (req, res) => {
         });
 
     } catch (error) {
+        console.log("checkout error");
         console.log(error);
     }
 }

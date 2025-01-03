@@ -13,7 +13,7 @@ const {
 
 const accountSid = process.env.accountSid;
 const authToken = process.env.authToken;
-const servicesid = process.env.serviceid;
+const servicesid = process.env.servicesid;
 const client = require("twilio")(accountSid, authToken);
 const { verifyToken, checkRole } = require("../middleware/authentication");
 

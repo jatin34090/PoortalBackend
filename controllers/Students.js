@@ -42,7 +42,7 @@ const getStudents = async (req, res) => {
 
 const getStudentsById = async (req, res) => {
   try {
-    const student = await Students.findOne({ _id: req.user.id }).select("-password -__v -created_at -updated_at -_id -StudentsId -resetToken -resetTokenExpiry");
+    const student = await Students.findOne({ _id: req.user.id }).select("-password -__v -created_at -updated_at -resetToken -resetTokenExpiry");
     console.log("student", student);
     if (student.length === 0) {
       res.status(400).json({ message: "No students found" });
@@ -94,9 +94,20 @@ const editStudent = async (req, res) => {
 
   const { name, email, role, password, payment_id } = req.body;
   const student = await Students.findById(student_id);
+  
 
   if (!student) {
     return res.status(400).send("Student not found");
+  }
+  if(student.email!== email){
+    const existingStudent = await Students.findOne({ email });
+    if (existingStudent) {
+      return res.status(400).json("Student already exists");
+    }
+
+  }
+  if(email){
+    
   }
 
   student.name = name ? name : student.name;
