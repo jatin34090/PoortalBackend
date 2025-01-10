@@ -29,10 +29,12 @@ const isFileValid = (filePath) => {
 
 const generateAdmitCardPDF = async (data, filePath) => {
   console.log("data", data);
-    const browser = await puppeteer.launch();
-    const page = await browser.newPage();
-  
-    const htmlContent = `
+  const browser = await puppeteer.launch();
+  const page = await browser.newPage();
+  const logoPath = path.resolve(__dirname, 'SDATLogo-01.png');
+
+
+  const htmlContent = `
       <!DOCTYPE html>
       <html>
       <head>
@@ -42,7 +44,6 @@ const generateAdmitCardPDF = async (data, filePath) => {
             font-family: Arial, sans-serif;
             background-color: #f7f7f7;
           }
-  
           .admit-card {
             width: 800px;
             margin: 30px auto;
@@ -52,7 +53,7 @@ const generateAdmitCardPDF = async (data, filePath) => {
             border: 2px solid #000;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
           }
-  
+
           .admit-card .header {
             text-align: center;
             font-size: 28px;
@@ -117,32 +118,34 @@ const generateAdmitCardPDF = async (data, filePath) => {
           <div class="mainSection">
             <div>
               <div class="stream-section">
+                <label>Stream:</label>
                 <label><input type="checkbox" id="medical" ${data.stream === 'Medical' ? 'checked' : ''}/> Medical</label>
                 <label><input type="checkbox" id="engineering" ${data.stream === 'Engineering' ? 'checked' : ''}/> Engineering</label>
                 <label><input type="checkbox" id="foundation" ${data.stream === 'Foundation' ? 'checked' : ''}/> Foundation</label>
               </div>
               <div class="class-section">
+              <label>Class:</label>
                 ${['V', 'VI', 'VII', 'VIII', 'IX', 'X', 'XI', 'XII']
-                  .map(classLevel => `<label><input type="checkbox" id="class-${classLevel.toLowerCase()}" ${data.class === classLevel ? 'checked' : ''}/> ${classLevel}</label>`).join('')}
+      .map(classLevel => `<label><input type="checkbox" id="class-${classLevel.toLowerCase()}" ${data.class === classLevel ? 'checked' : ''}/> ${classLevel}</label>`).join('')}
               </div>
               <div class="details-section">
                 <label>Student's Name:</label>
                 <span>${data.studentName}</span>
                 <br />
                 <label>Date of Birth:</label>
-                <span>${data.dob}</span>
-                <br />
-                <label>Gender:</label>
-                <span>${data.gender}</span>
-                <br />
-                <label>Registration No:</label>
                 <span>${data.Registration}</span>
                 <br />
+                <label>Exam Date:</label>
+                <span>${data.examDate}</span>
+                <br />
+                <label>Exam Time:</label>
+                <span>${data.examTime}</span>
+                <br />
                 <label>Center Address:</label>
-                <span>${data.centerAddress}</span>
+                <span>${data.CenterName}</span>
                 <br />
                 <label>Center Name:</label>
-                <span>${data.centerName}</span>
+                <span>${data.CenterAddress}</span>
                 <br />
                
               </div>
@@ -162,11 +165,11 @@ const generateAdmitCardPDF = async (data, filePath) => {
       </body>
       </html>
     `;
-  
-    await page.setContent(htmlContent);
-    await page.pdf({ path: filePath, format: 'A4', printBackground: true });
-    await browser.close();
-  };
+
+  await page.setContent(htmlContent);
+  await page.pdf({ path: filePath, format: 'A4', printBackground: true });
+  await browser.close();
+};
 
 
 
@@ -194,30 +197,33 @@ const uploadToCloudinary = async (filePath, rollNumber) => {
 
 // Function to process CSV data and generate admit cards
 const processHTMLAndGenerateAdmitCards = async (student) => {
-  console.log("student form processCSVAndGenerateAdmitCards",student );
-  
+  console.log("student form processCSVAndGenerateAdmitCards", student);
+
 
   const pdfFilePath = `./admit_card_${student.email}.pdf`;
   const date = new Date(student.dob);
 
-// Format the date to dd-mm-yy
-const day = String(date.getDate()).padStart(2, '0'); // Ensure 2 digits for day
-const month = String(date.getMonth() + 1).padStart(2, '0'); // Months are zero-indexed
-const year = String(date.getFullYear()).slice(-2); // Get last 2 digits of year
+  // Format the date to dd-mm-yy
+  const day = String(date.getDate()).padStart(2, '0'); // Ensure 2 digits for day
+  const month = String(date.getMonth() + 1).padStart(2, '0'); // Months are zero-indexed
+  const year = String(date.getFullYear()).slice(-2); // Get last 2 digits of year
 
-const formattedDate = `${day}-${month}-${year}`;
+  const formattedDate = `${day}-${month}-${year}`;
 
-console.log(formattedDate);
+  console.log(formattedDate);
 
   const studentData = {
     studentName: student.name,
     Registration: student.studentId,
     class: student.class,
-    dob: formattedDate,
-    gender: student.gender,
     stream: student.stream,
-    
-    
+    fatherName: student.fatherName,
+    examDate: student.examDate,
+    examTime: student.examTime,
+    CenterName: student.CenterName,
+    CenterAddress: student.CenterAddress,
+
+
   };
   // console.log("studentData",  studentData.dob.split("T")[0] );
 
@@ -225,7 +231,7 @@ console.log(formattedDate);
     // Choose between generating the PDF from HTML or PDFKit
 
     await generateAdmitCardPDF(studentData, pdfFilePath); // HTML-to-PDF example
-    
+
     console.log(`Generated admit card for Roll Number: ${student.studentId}`);
 
     // Ensure that the file is valid before uploading
@@ -237,12 +243,12 @@ console.log(formattedDate);
       return url;
     } else {
       console.log(`Generated PDF for ${student.studentId} is empty or invalid.`);
-      
+
     }
 
     // Optionally, delete the local file after upload
     fs.unlinkSync(pdfFilePath);
-    
+
   } catch (error) {
     console.error(`Error processing admit card for Roll Number: ${student.studentId}`, error);
   }

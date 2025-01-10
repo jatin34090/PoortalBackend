@@ -181,6 +181,7 @@ const getAdmitCard = async (req, res) => {
       res.status(404).json("Student not found")
     }
     console.log("studentAdmitCard", studentAdmitCard);
+    
     res.status(200).json(studentAdmitCard );
   } catch (error) {
     console.log("error", error)

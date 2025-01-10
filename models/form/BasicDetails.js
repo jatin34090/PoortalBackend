@@ -9,7 +9,7 @@ const basicDetailsSchema = new mongoose.Schema({
   dob: { type: Date, required: true },
   gender: { type: String, enum: ["Male", "Female", "Other"], required: true },
   examName: { type: String, required: true },
-  examDate: { type: Date, required: true },
+  examDate: { type: String, required: true },
   // admitCard: {
   //   type: String,
   // },

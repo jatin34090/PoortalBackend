@@ -5,6 +5,7 @@ const processHTMLAndGenerateAdmitCards = require("../utils/AdmitCardGenerator");
 const Students = require("../models/Student");
 const BatchRelatedDetails = require("../models/form/BatchRelatedDetails");
 const BasicDetails = require("../models/form/BasicDetails");
+const FamilyDetails = require("../models/form/FamilyDetails");
 
 require("dotenv").config();
 
@@ -95,6 +96,7 @@ const generateAdmitCard = async (req, res) => {
         if (!batchDetails) {
             return res.status(404).json({ success: false, message: "Batch Details not found" });
         }
+        const familyDetails = await FamilyDetails.findOne({ student_id: req.user._id });
         console.log("basicDetails", basicDetails);
         console.log("batchDetails", batchDetails);
         // Allocate a new StudentsId
@@ -105,10 +107,15 @@ const generateAdmitCard = async (req, res) => {
         const data = {
             name: student.name,
             class: batchDetails.classForAdmission,
-            dob: basicDetails.dob,
-            gender: basicDetails.gender,
             stream: batchDetails.subjectCombination,
+            examDate: basicDetails.examDate,
+            examTime: "12:00 PM",
+        
             studentId: student.StudentsId,
+            FatherName: familyDetails.FatherName,
+            CenterName: "Bulding 1",
+            CenterAddress: "Near Qila, Kanth Road Moradabad, Uttar Pradesh",
+
         }
         // Generate admit card
         const admitCard = await processHTMLAndGenerateAdmitCards(data);

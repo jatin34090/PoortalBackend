@@ -15,7 +15,7 @@ const studentsSchema = new mongoose.Schema({
   resetTokenExpiry: { type: String },
 });
 
-// Static Method to Allocate StudentsId
+// Static Method to Allocate /StudentsId
 studentsSchema.statics.allocateStudentsId = async function (classForAdmission) {
   let currentYear = new Date().getFullYear();
   const currentmonth = new Date().getMonth();
@@ -28,15 +28,15 @@ studentsSchema.statics.allocateStudentsId = async function (classForAdmission) {
   const classStudentCount = await BatchRelatedDetails.countDocuments({ classForAdmission });
  function romanToInt(number) {
    const romanNumerals = {
-     'I': 1,
-     'II': 2,
-     'III': 3,
-     'IV': 4,
-     'V': 5,
-     'VI': 6,
-     'VII': 7,
-     'VIII': 8,
-     'IX': 9,
+     'I': '01',
+     'II': '02',
+     'III': "03",
+     'IV': "04",
+     'V': "05",
+     'VI': "06",
+     'VII': "07",
+     'VIII': "08",
+     'IX': "09",
      'X': 10,
      'XI': 11,
      'XII': 12,
@@ -46,7 +46,7 @@ studentsSchema.statics.allocateStudentsId = async function (classForAdmission) {
  }
  
   // Increment the count for the new student
-  const studentNumber = String(classStudentCount + 1).padStart(3, '0'); // 3-digit padding
+  const studentNumber = String(classStudentCount).padStart(3, '0'); // 3-digit padding
   const StudentsId =  `${currentYear}${romanToInt(classForAdmission)}${studentNumber}`;
   console.log("StudentsId", StudentsId);
 
