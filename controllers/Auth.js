@@ -63,6 +63,7 @@ const employeeSignup = async (req, res) => {
     email,
     role,
     password: hashedPassword,
+    employeeId: crypto.randomUUID(),
   });
 
   const token = jwt.sign(
