@@ -1,3 +1,4 @@
+New-Item -Path . -Name "build.sh" -ItemType "file" -Value @'
 #!/bin/bash
 apt-get update && apt-get install -y \
   libgbm-dev \
@@ -8,3 +9,4 @@ apt-get update && apt-get install -y \
   fonts-liberation \
   libatk-bridge2.0-0 \
   libgtk-3-0
+'@
