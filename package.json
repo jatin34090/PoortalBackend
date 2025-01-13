@@ -5,7 +5,6 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "postinstall": "npx puppeteer install",
-
     "start": "nodemon index.js"
   },
   "author": "",
@@ -28,6 +27,7 @@
     "nodemon": "^3.1.8",
     "pdfkit": "^0.15.2",
     "puppeteer": "^23.11.1",
+    "puppeteer-core": "^24.0.0",
     "razorpay": "^2.9.5",
     "stream": "^0.0.3",
     "twilio": "^5.4.0",
