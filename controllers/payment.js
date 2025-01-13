@@ -88,13 +88,13 @@ const generateAdmitCard = async (req, res) => {
         if (!student) {
             return res.status(404).json({ success: false, message: "Student not found" });
         }
-        // if (student.admitCard) {
-        //     console.log("Admit Card Already generated");
-        //     return res.status(200).json({
-        //         success: true,
-        //         message: "Admit Card Generated Successfully",
-        //     });
-        // }
+        if (student.admitCard) {
+            console.log("Admit Card Already generated");
+            return res.status(200).json({
+                success: true,
+                message: "Admit Card Generated Successfully",
+            });
+        }
         console.log("student from generateAdmitCard", student);
         const basicDetails = await BasicDetails.findOne({ student_id: req.user._id });
         if (!basicDetails) {
