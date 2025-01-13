@@ -26,15 +26,26 @@ const isFileValid = (filePath) => {
 
 const generateAdmitCardPDF = async (data, filePath) => {
 
+
+  const browser = await puppeteer.launch({
+    executablePath: process.env.PUPPETEER_EXECUTABLE_PATH || '/opt/render/.cache/puppeteer/chrome/linux-*/chrome',
+    headless: true,
+    args: [
+      '--no-sandbox',
+      '--disable-setuid-sandbox',
+      '--disable-dev-shm-usage',
+    ],
+  });
+
+
   console.log("data form generateAdmitCardPDF", data);
-  const browser = await puppeteer.launch();
   const page = await browser.newPage();
   const logoPath = path.resolve(__dirname, 'SDATLogo.png');
   const logoBase64 = fs.readFileSync(logoPath, { encoding: 'base64' });
   const logoDataUrl = `data:image/png;base64,${logoBase64}`;
-  
-const htmlContent = 
-`
+
+  const htmlContent =
+    `
 <!DOCTYPE html>
 <html>
   <head>
@@ -154,7 +165,7 @@ const htmlContent =
             <div class="mainStream">
               <label> Medical </label>
               <input type="checkbox" id="medical" ${data.stream === 'Medical' ?
-              'checked' : ''}/>
+      'checked' : ''}/>
             </div>
 
             <div class="mainStream">
@@ -165,18 +176,18 @@ const htmlContent =
             <div class="mainStream">
               <label>Foundation</label>
               <input type="checkbox" id="foundation" ${data.stream ===
-              'Foundation' ? 'checked' : ''}/>
+      'Foundation' ? 'checked' : ''}/>
             </div>
           </div>
           <div class="class-section">
           <label>Class:</label>
-            ${['V', 'VI', 'VII', 'VIII', 'IX', 'X', 'XI', 'XII'] .map(classLevel=> `
+            ${['V', 'VI', 'VII', 'VIII', 'IX', 'X', 'XI', 'XII'].map(classLevel => `
               <div class="mainClass">
               <label
               >${classLevel}</label>
                <input type="checkbox"
               id="class-${classLevel.toLowerCase()}" ${data.class === classLevel
-              ? 'checked' : ''}/>
+          ? 'checked' : ''}/>
               </div>
               
               
@@ -262,29 +273,29 @@ const htmlContent =
 //             font-weight: bold;
 //             margin-bottom: 20px;
 //           }
-  
+
 //           .admit-card .stream-section,
 //           .admit-card .class-section {
 //             display: flex;
 //             gap: 20px;
 //             margin: 10px 0;
 //           }
-  
+
 //           .admit-card input[type="checkbox"] {
 //             margin-right: 5px;
 //           }
-  
+
 //           .admit-card .details-section {
 //             margin-top: 20px;
 //           }
-  
+
 //           .admit-card .details-section label {
 //             display: inline-block;
 //             width: 200px;
 //             font-weight: bold;
 //             margin-bottom: 10px;
 //           }
-  
+
 //           .admit-card .photo-section {
 //             border: 2px dashed white;
 //             width: 150px;
@@ -298,14 +309,14 @@ const htmlContent =
 //             color: white;
 //             text-align: center;
 //           }
-  
+
 //           .admit-card .footer {
 //             font-size: 12px;
 //             text-align: center;
 //             margin-top: 20px;
 //             font-weight: bold;
 //           }
-  
+
 //           .mainSection {
 //             width: 100%;
 //             display: flex;
@@ -349,7 +360,7 @@ const htmlContent =
 //                 <label>Center Name:</label>
 //                 <span>${data.CenterAddress}</span>
 //                 <br />
-               
+
 //               </div>
 //             </div>
 //             <div class="photo-section">
@@ -427,7 +438,7 @@ const processHTMLAndGenerateAdmitCards = async (student) => {
 
 
   };
-  console.log("studentData after the function",  studentData );
+  console.log("studentData after the function", studentData);
 
   try {
     // Choose between generating the PDF from HTML or PDFKit
